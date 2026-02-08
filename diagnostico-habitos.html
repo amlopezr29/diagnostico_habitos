@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico: ¿Por qué abandonas tus hábitos?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2D3436;
+            --accent: #6C5CE7;
+            --accent-hover: #5B4BD5;
+            --bg: #FAFAFA;
+            --card: #FFFFFF;
+            --text: #2D3436;
+            --text-light: #636E72;
+            --border: #DFE6E9;
+            --success: #00B894;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 24px 20px 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .progress-container {
+            margin-bottom: 32px;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        .question-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .question-card.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .question-card.hidden {
+            display: none;
+        }
+
+        .question-number {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .option:hover {
+            border-color: var(--accent);
+            background: #F8F7FF;
+        }
+
+        .option:active {
+            transform: scale(0.98);
+        }
+
+        .option.selected {
+            border-color: var(--accent);
+            background: #F0EEFF;
+        }
+
+        .result-screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .result-screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .result-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--accent), #A29BFE);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .result-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .result-description {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 28px;
+            line-height: 1.7;
+        }
+
+        .micro-step {
+            background: linear-gradient(135deg, #F0EEFF 0%, #E8F5E8 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+
+        .micro-step-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .micro-step-text {
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .cta-button {
+            display: block;
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 24px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .cta-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
+        }
+
+        .cta-subtext {
+            margin-top: 12px;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen .header {
+            margin-bottom: 24px;
+        }
+
+        .start-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .start-card p {
+            color: var(--text-light);
+            margin-bottom: 24px;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .start-button {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 1.0625rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .start-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+
+        .time-badge {
+            display: inline-block;
+            background: var(--bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla inicial -->
+        <div id="start-screen" class="start-screen">
+            <div class="header">
+                <h1>¿Cuál es tu patrón cuando la vida se complica?</h1>
+                <p>Descubre qué te hace abandonar tus hábitos</p>
+            </div>
+            <div class="start-card">
+                <span class="time-badge">2 minutos</span>
+                <p>Responde 5 preguntas rápidas y descubre tu patrón actual.<br><strong>Al final recibirás un micro-paso para empezar hoy.</strong></p>
+                <button class="start-button" onclick="startQuiz()">Comenzar diagnóstico</button>
+            </div>
+        </div>
+
+        <!-- Pantalla del quiz -->
+        <div id="quiz-screen" style="display: none;">
+            <div class="progress-container">
+                <div class="progress-text">Pregunta <span id="current-q">1</span> de 5</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="question-card" id="q1">
+                <div class="question-number">Pregunta 1</div>
+                <div class="question-text">Cuando empiezas un hábito nuevo, ¿cómo sueles planteártelo?</div>
+                <div class="options">
+                    <div class="option" data-category="A" onclick="selectOption(this, 1)">"Voy con todo" — si lo hago, lo hago bien y completo.</div>
+                    <div class="option" data-category="C" onclick="selectOption(this, 1)">Lo empiezo cuando me acuerdo, sin un horario fijo.</div>
+                    <div class="option" data-category="B" onclick="selectOption(this, 1)">Arranco motivado, pero si un día fallo, me cuesta retomar.</div>
+                </div>
+            </div>
+
+            <div class="question-card hidden" id="q2">
+                <div class="question-number">Pregunta 2</div>
+                <div class="question-text">Después de una semana difícil (estrés, cansancio, imprevistos), ¿qué pasa con tus hábitos?</div>
+                <div class="options">
+                    <div class="option" data-category="A" onclick="selectOption(this, 2)">Los abandono porque no puedo hacerlos "como deberían ser".</div>
+                    <div class="option" data-category="B" onclick="selectOption(this, 2)">Fallo un día y siento que ya perdí la racha, así que dejo de intentar.</div>
+                    <div class="option" data-category="C" onclick="selectOption(this, 2)">Se me olvidan porque no tengo un sistema claro para mantenerlos.</div>
+                </div>
+            </div>
+
+            <div class="question-card hidden" id="q3">
+                <div class="question-number">Pregunta 3</div>
+                <div class="question-text">¿Qué frase describe mejor cómo te sientes cuando no cumples con un hábito?</div>
+                <div class="options">
+                    <div class="option" data-category="B" onclick="selectOption(this, 3)">"Ya lo arruiné, ¿para qué seguir?"</div>
+                    <div class="option" data-category="A" onclick="selectOption(this, 3)">"Si no puedo hacerlo bien, mejor no lo hago."</div>
+                    <div class="option" data-category="C" onclick="selectOption(this, 3)">"Ni me di cuenta de que lo dejé, simplemente pasó."</div>
+                </div>
+            </div>
+
+            <div class="question-card hidden" id="q4">
+                <div class="question-number">Pregunta 4</div>
+                <div class="question-text">Si tuvieras un día con muy poca energía, ¿qué harías con tu hábito?</div>
+                <div class="options">
+                    <div class="option" data-category="C" onclick="selectOption(this, 4)">Probablemente ni pensaría en él, no está integrado en mi rutina.</div>
+                    <div class="option" data-category="A" onclick="selectOption(this, 4)">Lo saltaría, porque hacer "la versión corta" me parece inútil.</div>
+                    <div class="option" data-category="B" onclick="selectOption(this, 4)">Lo intentaría, pero si fallo, me sentiría mal conmigo mismo.</div>
+                </div>
+            </div>
+
+            <div class="question-card hidden" id="q5">
+                <div class="question-number">Pregunta 5</div>
+                <div class="question-text">¿Cuántas veces has "reiniciado desde cero" un hábito en el último año?</div>
+                <div class="options">
+                    <div class="option" data-category="B" onclick="selectOption(this, 5)">Varias veces. Cada fallo se siente como empezar de nuevo.</div>
+                    <div class="option" data-category="A" onclick="selectOption(this, 5)">Muchas. Siempre pienso "esta vez sí lo haré bien" y me exijo más.</div>
+                    <div class="option" data-category="C" onclick="selectOption(this, 5)">No llevo la cuenta. A veces ni sé cuándo lo dejé exactamente.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de resultado -->
+        <div id="result-screen" class="result-screen">
+            <div class="result-card">
+                <div class="result-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                </div>
+                <div class="result-label">Tu patrón identificado</div>
+                <h2 class="result-title" id="result-title"></h2>
+                <p class="result-description" id="result-description"></p>
+
+                <div class="micro-step">
+                    <div class="micro-step-label">Tu micro-paso para esta semana</div>
+                    <p class="micro-step-text" id="micro-step-text"></p>
+                </div>
+
+                <a href="https://pay.hotmart.com/P103986991V" class="cta-button">Ver el sistema completo de 30 días</a>
+                <p class="cta-subtext">El método para mantener hábitos incluso en tus peores semanas</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let scores = { A: 0, B: 0, C: 0 };
+
+        const results = {
+            A: {
+                title: "Patrón: Exigencia Alta",
+                description: "Cuando te propones un hábito, te lo planteas en grande. Eso suena bien... hasta que la vida aprieta. Entonces el hábito se vuelve pesado, imposible de mantener, y lo abandonas. No es falta de voluntad: es que tu versión \"ideal\" no está diseñada para tus días reales.",
+                microStep: "Durante los próximos 7 días, reduce tu hábito principal al 30% de lo que normalmente te exiges. Si hacías 30 minutos, haz 10. Si leías 20 páginas, lee 6. Solo 7 días."
+            },
+            B: {
+                title: "Patrón: Ruptura por Tropiezo",
+                description: "Un solo día sin cumplir se siente como fracaso total. La racha se rompe, la culpa aparece, y abandonas. No es que no puedas mantener hábitos: es que cuando fallas, no tienes un plan para volver. Y sin ese plan, un tropiezo se convierte en caída.",
+                microStep: "Define ahora mismo una \"versión de 2 minutos\" de tu hábito principal. Esa será tu opción para los días difíciles. Escríbela en una nota o en tu celular."
+            },
+            C: {
+                title: "Patrón: Sin Estructura Mínima",
+                description: "Tus hábitos dependen de que te acuerdes, de que tengas ganas, de que \"se dé\". Pero cuando la vida se complica, lo primero que desaparece es eso. No es falta de compromiso: es que no hay un ancla que mantenga el hábito en su lugar.",
+                microStep: "Elige UN hábito y define cuándo y dónde lo harás esta semana. Ejemplo: \"Después de servirme el café, haré 5 minutos de lectura en la cocina.\" Solo uno. Solo esta semana."
+            }
+        };
+
+        function startQuiz() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            showQuestion(1);
+        }
+
+        function showQuestion(num) {
+            currentQuestion = num;
+            document.getElementById('current-q').textContent = num;
+            document.getElementById('progress-fill').style.width = ((num - 1) / 5 * 100) + '%';
+
+            for (let i = 1; i <= 5; i++) {
+                const q = document.getElementById('q' + i);
+                q.classList.remove('active');
+                q.classList.add('hidden');
+            }
+
+            setTimeout(() => {
+                const currentQ = document.getElementById('q' + num);
+                currentQ.classList.remove('hidden');
+                setTimeout(() => {
+                    currentQ.classList.add('active');
+                }, 50);
+            }, 100);
+        }
+
+        function selectOption(element, questionNum) {
+            const category = element.dataset.category;
+            scores[category]++;
+
+            const options = element.parentElement.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+
+            setTimeout(() => {
+                if (questionNum < 5) {
+                    showQuestion(questionNum + 1);
+                } else {
+                    showResults();
+                }
+            }, 400);
+        }
+
+        function showResults() {
+            document.getElementById('progress-fill').style.width = '100%';
+
+            let winner = 'A';
+            if (scores.B > scores[winner]) winner = 'B';
+            if (scores.C > scores[winner]) winner = 'C';
+
+            if (scores.A === scores.B && scores.A >= scores.C) winner = 'B';
+            if (scores.B === scores.C && scores.B >= scores.A) winner = 'B';
+            if (scores.A === scores.C && scores.A >= scores.B) winner = 'A';
+
+            const result = results[winner];
+
+            document.getElementById('result-title').textContent = result.title;
+            document.getElementById('result-description').textContent = result.description;
+            document.getElementById('micro-step-text').textContent = result.microStep;
+
+            setTimeout(() => {
+                document.getElementById('quiz-screen').style.display = 'none';
+                const resultScreen = document.getElementById('result-screen');
+                resultScreen.style.display = 'block';
+                setTimeout(() => {
+                    resultScreen.classList.add('active');
+                }, 50);
+            }, 300);
+        }
+    </script>
+</body>
+</html>
